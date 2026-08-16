@@ -538,20 +538,6 @@ The strict pipeline guarantees that a result workbook is written only when
 all 30 `ST-CODE` cells and all 30 `RUST-CODE` cells are populated. Validation
 status is tracked separately from population status.
 
-### Released-test address normalization
-
-Pipeline ID `test_0028` uses legacy address labels. The model-facing copy is
-normalized as follows:
-
-| Released label | Model-facing IEC address |
-|---|---|
-| `AI:n` | `%IWn` |
-| `AO:n` | `%QWn` |
-| `DI:n` | `%IXn` |
-| `DO:n` | `%QXn` |
-
-The original `TASK` text remains unchanged in the output workbook.
-
 ## Step 12: Understand the final output files
 
 All final files are written under:
@@ -604,7 +590,7 @@ copy:
 ```cmd
 copy /Y ^
   "runs\final_test_strict30\STRICT_30_RESULTS_NEEDS_REVIEW.xlsx" ^
-  "runs\final_test_strict30\FINAL_SUBMISSION.xlsx"
+  "FINAL_SUBMISSION.xlsx"
 ```
 
 The submission workbook must contain exactly these three columns in the
