@@ -65,11 +65,11 @@ The project has two clearly separate workflows:
   skip directly to Step 9.
 
 ## Expected project layout
-
+pls create the directory structure accordingly for reduce errors
 Run all commands from the project root:
 
 ```text
-NL2PLC_Unsloth_SFT_Qwen25Coder7B\
+RUN-team meooo-01\
 |-- data\
 |-- models\
 |-- runs\
@@ -89,7 +89,7 @@ Activate the environment:
 
 ```cmd
 conda activate ssltest
-cd C:\Users\Mrinmoy\Desktop\NL2PLC_Unsloth_SFT_Qwen25Coder7B
+cd RUN-team meooo-01
 ```
 
 The examples below use Windows Command Prompt syntax. The caret (`^`) means
@@ -500,21 +500,8 @@ Rust coder: models\qwen25coder7b_rust_lora\final_adapter
 Do not use a `qwen25coder7b_planner_lora_v2` path unless that optional adapter
 was actually trained and selected using validation results.
 
-## Step 10: Test the final-pipeline package
 
-This test checks the package logic without loading the three models:
-
-```cmd
-python NL2PLC_Final_Test_Pipeline\test_final_pipeline.py
-```
-
-Expected result:
-
-```text
-OK
-```
-
-## Step 11: Generate all 30 final results
+## Step 10: Generate all 30 final results
 
 The released workbook contains exactly 30 tasks. The pipeline preserves their
 worksheet order and assigns internal IDs `test_0001` through `test_0030`.
@@ -538,7 +525,7 @@ The strict pipeline guarantees that a result workbook is written only when
 all 30 `ST-CODE` cells and all 30 `RUST-CODE` cells are populated. Validation
 status is tracked separately from population status.
 
-## Step 12: Understand the final output files
+## Step 11: Understand the final output files
 
 All final files are written under:
 
@@ -602,7 +589,7 @@ TASK | ST-CODE | RUST-CODE
 
 Do not add an ID, validation, status, or index column to the workbook.
 
-## Step 13: Resume an interrupted final run
+## Step 12: Resume an interrupted final run
 
 Use the same adapter paths and output directory, and add `--resume`:
 
@@ -626,7 +613,7 @@ python NL2PLC_Final_Test_Pipeline\final_test_pipeline.py ^
 the correct order and every row is valid. Partial or invalid stages are
 regenerated instead of being treated as complete.
 
-## Step 14: Rebuild Excel after manual JSONL correction
+## Step 13: Rebuild Excel after manual JSONL correction
 
 If you manually correct candidates inside `st_detailed.jsonl` or
 `rust_detailed.jsonl`, rebuild the workbook without running the models again:
