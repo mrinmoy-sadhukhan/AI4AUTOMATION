@@ -1,0 +1,14 @@
+[package]
+name = "nl2plc_runtime"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "nl2plc_runtime"
+path = "src/main.rs"
+
+[dependencies]
+

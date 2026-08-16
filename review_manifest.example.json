@@ -1,0 +1,9 @@
+{
+  "exclude": {
+    "row_0053": "Task name mismatch requires correction before training.",
+    "row_0239": "Per-scan self-multiplication does not implement a one-time 20 percent reduction.",
+    "row_0254": "PID derivative behavior requires semantic review.",
+    "row_0326": "Calculated scaled_level is unused and behavior requires review.",
+    "row_0336": "Calculated scaled_level is unused and behavior requires review."
+  }
+}
