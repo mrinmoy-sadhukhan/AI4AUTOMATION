@@ -40,19 +40,48 @@ flowchart TD
 
 During final inference, each test task follows this sequence:
 
-```text
-TASK
-  -> Planner LoRA
-  -> plan validation
-       -> if invalid: repair the plan and validate again
-  -> ST Coder LoRA
-  -> ST address and structure validation
-       -> if invalid: regenerate/repair the ST code
-  -> Rust Coder LoRA
-  -> Rust address, I/O API, structure, and Cargo validation
-       -> if invalid: repair the Rust code
-  -> write ST-CODE and RUST-CODE to the original Excel row
+```mermaid
+flowchart TD
+    X["Natural-language task"] --> N["Normalize addresses and extract contracts"]
+    N --> P["Planner LoRA"]
+    P --> VP{"Plan checks pass?"}
+    VP -- "Yes" --> PV["Validated plan"]
+    VP -- "No: budget remains" --> PF["Plan and validator diagnostics"]
+    PF --> P
+    VP -- "Budget exhausted" --> FB["Deterministic fallback plan"]
+    FB --> S["ST LoRA"]
+    PV --> S
+    N --> S
+    S --> VS{"ST address and structure checks pass?"}
+    VS -- "No: budget remains" --> SF["ST candidate and diagnostics"]
+    SF --> S
+    VS -- "Yes" --> SO["ST output and validation status"]
+    VS -- "Budget exhausted: retain status" --> SO
+    SO --> R["Rust LoRA"]
+    PV --> R
+    FB --> R
+    N --> R
+    R --> VR{"Contracts, API, structure and Cargo pass?"}
+    VR -- "No: budget remains" --> RF["Rust candidate and diagnostics"]
+    RF --> R
+    VR -- "Yes" --> O["Write outputs and validation report"]
+    VR -- "Budget exhausted: retain status" --> O
+    SO --> O
+    O --> D{"All rows populated and checks passed?"}
+    D -- "Yes" --> OK["Validated submission workbook"]
+    D -- "Complete but checks failed" --> REVIEW["Workbook requiring review"]
 ```
+
+All three stages retain the original requirement. Rust additionally receives
+the selected plan and generated ST. The teacher and reviewer are used offline
+for dataset preparation, not as final-inference generation stages. The adapters
+share the same base-model architecture and are loaded sequentially.
+
+The diagram summarizes the documented workflow. Planner fallback is not a
+successful model repair and must be counted separately. Downstream generation
+requires a usable ST candidate; an empty upstream result must be treated as a
+failure rather than replaced with reference code.
+
 
 ## Two different workflows
 
@@ -65,7 +94,7 @@ The project has two clearly separate workflows:
   skip directly to Step 9.
 
 ## Expected project layout
-pls create the directory structure accordingly for reduce errors
+Create the directories shown below before running the commands.
 Run all commands from the project root:
 
 ```text
@@ -652,6 +681,191 @@ To keep validation and hidden-test measurements valid:
 4. Select planner v1 or an optional planner v2 using validation results, not
    released-test results.
 5. Keep the original 30 test-row order in the final workbook.
+
+## Evaluation and supplementary analysis
+
+**Reporting status:** Official scores below are available from the working note.
+All `TBD` entries are unreported measurements, not experimental results.
+The tables define the additional evaluation needed to address the reviews.
+
+### Official competition results
+
+| Target | Our score | Best reported score | Gap |
+|---|---:|---:|---:|
+| Structured Text | 79.31 | 81.78 | 2.47 |
+| Rust | 44.20 | 61.55 | 17.35 |
+
+The official score is 0.25 × cosine similarity + 0.25 × structural match +
+0.50 × program dependence graph similarity. Reference agreement does not prove
+functional correctness. Keep official results separate from internal experiments.
+
+### Ablation experiments
+
+| Configuration | ST score | Rust score | ST validator pass rate | Rust validator pass rate | Mean seconds/task |
+|---|---:|---:|---:|---:|---:|
+| Direct task-to-code generation | TBD | TBD | TBD | TBD | TBD |
+| Cascade without repair | TBD | TBD | TBD | TBD | TBD |
+| Full cascade with validator-guided repair | TBD | TBD | TBD | TBD | TBD |
+
+Use the same examples, base model, scoring implementation, and comparable
+training/decoding settings. Train direct-generation adapters with their intended
+input format; removing expected inputs from a trained adapter introduces a
+confound. In the no-repair condition, run validators for measurement only.
+An optional equal-budget regeneration control without diagnostics can separate
+the effect of feedback from that of additional generation attempts.
+
+Record the split, sample count, seeds, and checkpoint-selection procedure.
+The 29-example internal split was used for development according to the paper;
+it must not be described as an untouched test set. Report counts alongside
+percentages because the evaluation sets are small. Apply all conditions to the
+same cases and report missing/failed outputs rather than silently dropping them.
+
+### Validation and repair effectiveness
+
+| Stage | Cases | Initial failures | Successful model repairs | Failures after repair | Fallback uses |
+|---|---:|---:|---:|---:|---:|
+| Planner | TBD | TBD | TBD | TBD | TBD |
+| ST | TBD | TBD | TBD | TBD | N/A |
+| Rust | TBD | TBD | TBD | TBD | N/A |
+
+- Initial failure rate = initially failing cases / evaluated cases.
+- Repair success rate = initially failing cases that pass after regeneration /
+  initially failing cases. Report N/A when there are no initial failures.
+- Residual failure rate = cases still failing after the repair budget /
+  evaluated cases. Count planner failures before fallback separately.
+- Fallback rate = cases using deterministic planner fallback / planner cases.
+- Report mean repair attempts over all cases and over initially failing cases.
+
+Separate address, literal, schema, structural, API, and compilation failures
+where the corresponding validator exists. Report the number of cases checked
+by each validator and allow overlapping error categories. A validator pass is
+not evidence of full behavioral correctness.
+
+### Repair and decoding configuration
+
+The final-inference command documented above specifies:
+
+| Setting | Value |
+|---|---:|
+| Planner repair attempts | 3 |
+| ST retry attempts | 4 |
+| Rust repair attempts | 4 |
+| Repair temperature | 0.20 |
+
+Confirm these values against the archived submitted-run configuration before
+calling them submission settings. Verify whether each implementation counts
+retries only or includes the initial generation. Validation examples elsewhere
+use smaller budgets and must be labeled separately.
+
+Record initial-generation temperature, sampling enabled/disabled, top-p, top-k,
+maximum new tokens per stage, context limits, stop tokens, random seed, and
+Cargo timeout from the actual run. Do not infer unspecified values from these
+example commands. Document the selected output after retry exhaustion and
+whether deterministic fallback or manual edits were applied.
+
+### Computational cost and parameter efficiency
+
+| Measurement | Planner | ST | Rust |
+|---|---:|---:|---:|
+| Trainable adapter parameters | TBD | TBD | TBD |
+| Trainable parameters / base parameters, % | TBD | TBD | TBD |
+| Mean initial-generation seconds/task | TBD | TBD | TBD |
+| Mean validation seconds/task | TBD | TBD | TBD |
+| Mean additional repair seconds/task | TBD | TBD | TBD |
+| Peak GPU memory, GB | TBD | TBD | TBD |
+| Mean GPU utilization, % | TBD | TBD | TBD |
+
+Report actual GPU, CPU, RAM, operating system, package versions, batch size,
+input/output token lengths, peak system RAM, and GPU sampling interval.
+Report end-to-end mean, median, and p95 latency, total run time, and the number
+of evaluated tasks. State whether model loading, adapter switching, I/O, and
+Cargo checks are included. Synchronize GPU execution for timing measurements
+and distinguish warm-up from measured runs. Measure normal and repaired cases.
+
+Count the shared frozen base once for logical model storage, and report adapter
+sizes separately. State the denominator used for parameter percentages.
+Sequential loading alone is not a measured memory saving; provide peak-memory
+measurements before quantifying the reduction.
+
+### Rust intermediate-output diagnostic
+
+Rust training uses verified plans and gold/verified ST intermediates, whereas
+inference uses generated intermediates. Upstream errors may therefore propagate
+into Rust even when local checks pass. The custom runtime also differs from the
+benchmark's RoboPLC/Modbus-oriented reference structure. Teacher-generated Rust
+targets may favor that custom structure. These are hypotheses about the score
+gap until supported by controlled measurements.
+
+| Inputs to the same Rust checkpoint | Rust score | Validator pass rate |
+|---|---:|---:|
+| Verified plan + gold ST | TBD | TBD |
+| Generated plan + gold ST | TBD | TBD |
+| Verified plan + generated ST | TBD | TBD |
+| Generated plan + generated ST | TBD | TBD |
+
+Use identical internal evaluation cases and decoding settings. Cache generated
+ST and document which plan produced it. Mixed inputs can be inconsistent, so
+interpret these as sensitivity diagnostics rather than perfectly isolated
+causal effects. Gold intermediates are never used for released-test generation.
+
+Training with generated or noisy intermediates remains a proposed extension
+until an actual training run and evaluation are reported. Generate training
+intermediates using training-only procedures; never use validation/test labels
+for constructing training examples.
+
+### Systematic error analysis
+
+| Error category | Cases | Evidence |
+|---|---:|---|
+| Missing, changed, or additional addresses | TBD | Contract diagnostics |
+| Rust syntax/type errors | TBD | Cargo diagnostics |
+| Incorrect I/O API or runtime structure | TBD | Interface/structure checks |
+| Incorrect timing/reset/state/control behavior | TBD | Behavioral tests or manual inspection |
+| Upstream errors reflected in Rust | TBD | Paired plan/ST/Rust inspection |
+| Structural differences from reference Rust | TBD | Reference comparison |
+
+Report overlapping categories explicitly. Compilation cannot establish timing,
+scan-cycle, reset, or safety-priority correctness. Distinguish suspected causes
+from errors confirmed by a test or manual inspection.
+
+### Representative failure and repair examples
+
+Publish at least one observed successful repair and one unresolved failure.
+For each, record the task ID, requirement, relevant plan/ST context, original
+candidate, exact diagnostics, regenerated candidate, retry count, final status,
+and any behavioral test result. Preserve original automated outputs and label
+manual corrections separately. Do not present invented examples as observed runs.
+
+### Reproducibility record
+
+Archive the following with each experiment:
+
+- Repository commit, model/tokenizer revisions, and adapter checkpoint IDs.
+- Split identifiers and accepted/rejected counts after every filtering stage.
+- Exact prompts, generation settings, seeds, and retry/fallback policy.
+- Python, PyTorch, CUDA, Unsloth, PEFT, Transformers, Rust, and Cargo versions.
+- Validator sources, runtime files, Cargo manifest and lockfile.
+- Per-case outputs, errors, repair histories, and timing/memory measurements.
+- Evaluator version, reference source, and exact scoring commands.
+
+Existing detailed JSONL and metrics files are starting points; add
+instrumentation where a required measurement is absent. Do not imply that an
+unimplemented experiment has a runnable command. Publish scripts and commands
+when the experiments are implemented.
+
+**ST supervision provenance to verify:** The original README describes
+teacher-created ST targets, while the manuscript describes reference ST
+supervision. Inspect the dataset-builder output and record whether final ST
+targets are original references, teacher-generated programs, or a filtered
+mixture. Align the manuscript with the actual records before publication.
+
+### Connection to the working note
+
+Keep the complete pipeline figure, principal ablation results, concise repair
+statistics, runtime summary, and main Rust findings in the paper. This README
+provides extended procedures and evidence; a repository link alone does not
+replace the principal quantitative results. Cite a fixed commit or release so
+readers can recover the version corresponding to the working note.
 
 ## Quick troubleshooting
 
