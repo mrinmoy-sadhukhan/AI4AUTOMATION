@@ -750,6 +750,61 @@ Record initial-generation temperature, sampling enabled/disabled, top-p, top-k,
 maximum new tokens per stage, context limits, stop tokens, random seed, and
 Cargo timeout from the actual run. 
 
+### Hardware and training configuration
+
+The GPU used for this work is an NVIDIA GeForce RTX 5090 Founders Edition.
+The workstation configuration below is based on the author's supplied hardware
+information. Hardware capacity is distinct from measured consumption during a run.
+
+| Hardware | Configuration |
+|---|---|
+| GPU | NVIDIA GeForce RTX 5090 Founders Edition |
+| GPU memory capacity | 32 GB nominal; previously reported by `nvidia-smi` as 32607 MiB |
+| CPU | AMD Ryzen 9 9950X |
+| System RAM capacity | 64 GB |
+| Execution arrangement | Three adapters loaded sequentially |
+
+NVIDIA driver 581.80 and a CUDA compatibility version of 13.0 reported by `nvidia-smi`. 
+The following training settings are documented in the manuscript and commands:
+
+| Setting | Planner | ST coder | Rust coder |
+|---|---|---|---|
+| Base model | Qwen2.5-Coder-7B-Instruct | Qwen2.5-Coder-7B-Instruct | Qwen2.5-Coder-7B-Instruct |
+| Base loading | 4-bit quantization | 4-bit quantization | 4-bit quantization |
+| LoRA rank | 16 | 32 | 32 |
+| LoRA alpha | 32 | 64 | 64 |
+| Learning rate | 1e-4 | 5e-5 | 5e-5 |
+| Maximum training sequence length | 3072 | 4096 | 6144 |
+| Maximum epochs | 3 | 3 | 3 |
+| Per-device training batch size | 1 | 1 | 1 |
+| Gradient accumulation steps | 8 | 8 | 8 |
+| Effective batch size on one GPU | 8 | 8 | 8 |
+| Evaluation batch size | 1 | 1 | 1 |
+| Evaluation/save interval, steps | 20 | 20 | 20 |
+| Early-stopping patience, evaluation intervals | 2 | 2 | 2 |
+
+### Dataset and documented inference settings
+
+| Item | Documented value |
+|---|---|
+| Initial training split | 213 instances |
+| Initial validation split | 31 instances |
+| Internal development holdout | 29 instances |
+| Released competition test set | 30 tasks |
+| Required final outputs | 30 ST programs and 30 Rust programs |
+| ST validation context limit | 4096 tokens in the example command |
+| Rust validation context limit | 8192 tokens in the example command |
+| Rust validation maximum new tokens | 3500 |
+| Rust validation repair attempts | 1 |
+| Rust validation Cargo timeout | 120 seconds |
+| Offline teacher/reviewer context setting | 16384 |
+| Offline plan reviewer temperature | 0.1 |
+
+Split counts precede subsequent supervision filtering and repair-example
+augmentation; they are not final adapter training-record counts. Validation
+command settings above must not be assumed to be final-test defaults. Final
+retry settings are recorded in the preceding repair-configuration table.
+
 ### Computational cost and parameter efficiency
 
 | Measurement | Planner | ST | Rust |
