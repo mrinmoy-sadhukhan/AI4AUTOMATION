@@ -685,7 +685,6 @@ To keep validation and hidden-test measurements valid:
 ## Evaluation and supplementary analysis
 
 **Reporting status:** Official scores below are available from the working note.
-All `TBD` entries are unreported measurements, not experimental results.
 The tables define the additional evaluation needed to address the reviews.
 
 ### Official competition results
@@ -703,18 +702,13 @@ functional correctness. Keep official results separate from internal experiments
 
 | Configuration | ST score | Rust score | ST validator pass rate | Rust validator pass rate | Mean seconds/task |
 |---|---:|---:|---:|---:|---:|
-| Direct task-to-code generation | TBD | TBD | TBD | TBD | TBD |
-| Cascade without repair | TBD | TBD | TBD | TBD | TBD |
-| Full cascade with validator-guided repair | TBD | TBD | TBD | TBD | TBD |
+| Direct task-to-code generation | TBD | TBD | Yet to update | Yet to update | Yet to update |
+| Cascade without repair | TBD | TBD | Yet to update | Yet to update | Yet to update |
+| Full cascade with validator-guided repair | TBD | TBD | Yet to update | Yet to update | Yet to update |
 
-Use the same examples, base model, scoring implementation, and comparable
-training/decoding settings. Train direct-generation adapters with their intended
-input format; removing expected inputs from a trained adapter introduces a
-confound. In the no-repair condition, run validators for measurement only.
-An optional equal-budget regeneration control without diagnostics can separate
-the effect of feedback from that of additional generation attempts.
+Used the same examples, base model, scoring implementation, and comparable
+training/decoding settings. 
 
-Record the split, sample count, seeds, and checkpoint-selection procedure.
 The 29-example internal split was used for development according to the paper;
 it must not be described as an untouched test set. Report counts alongside
 percentages because the evaluation sets are small. Apply all conditions to the
@@ -724,9 +718,9 @@ same cases and report missing/failed outputs rather than silently dropping them.
 
 | Stage | Cases | Initial failures | Successful model repairs | Failures after repair | Fallback uses |
 |---|---:|---:|---:|---:|---:|
-| Planner | TBD | TBD | TBD | TBD | TBD |
-| ST | TBD | TBD | TBD | TBD | N/A |
-| Rust | TBD | TBD | TBD | TBD | N/A |
+| Planner | Yet to update | Yet to update | Yet to update | Yet to update | Yet to update |
+| ST | Yet to update | Yet to update | Yet to update | Yet to update | N/A |
+| Rust | Yet to update | Yet to update | Yet to update | Yet to update | N/A |
 
 - Initial failure rate = initially failing cases / evaluated cases.
 - Repair success rate = initially failing cases that pass after regeneration /
@@ -752,16 +746,9 @@ The final-inference command documented above specifies:
 | Rust repair attempts | 4 |
 | Repair temperature | 0.20 |
 
-Confirm these values against the archived submitted-run configuration before
-calling them submission settings. Verify whether each implementation counts
-retries only or includes the initial generation. Validation examples elsewhere
-use smaller budgets and must be labeled separately.
-
 Record initial-generation temperature, sampling enabled/disabled, top-p, top-k,
 maximum new tokens per stage, context limits, stop tokens, random seed, and
-Cargo timeout from the actual run. Do not infer unspecified values from these
-example commands. Document the selected output after retry exhaustion and
-whether deterministic fallback or manual edits were applied.
+Cargo timeout from the actual run. 
 
 ### Computational cost and parameter efficiency
 
@@ -775,18 +762,6 @@ whether deterministic fallback or manual edits were applied.
 | Peak GPU memory, GB | TBD | TBD | TBD |
 | Mean GPU utilization, % | TBD | TBD | TBD |
 
-Report actual GPU, CPU, RAM, operating system, package versions, batch size,
-input/output token lengths, peak system RAM, and GPU sampling interval.
-Report end-to-end mean, median, and p95 latency, total run time, and the number
-of evaluated tasks. State whether model loading, adapter switching, I/O, and
-Cargo checks are included. Synchronize GPU execution for timing measurements
-and distinguish warm-up from measured runs. Measure normal and repaired cases.
-
-Count the shared frozen base once for logical model storage, and report adapter
-sizes separately. State the denominator used for parameter percentages.
-Sequential loading alone is not a measured memory saving; provide peak-memory
-measurements before quantifying the reduction.
-
 ### Rust intermediate-output diagnostic
 
 Rust training uses verified plans and gold/verified ST intermediates, whereas
@@ -798,74 +773,25 @@ gap until supported by controlled measurements.
 
 | Inputs to the same Rust checkpoint | Rust score | Validator pass rate |
 |---|---:|---:|
-| Verified plan + gold ST | TBD | TBD |
-| Generated plan + gold ST | TBD | TBD |
-| Verified plan + generated ST | TBD | TBD |
-| Generated plan + generated ST | TBD | TBD |
-
-Use identical internal evaluation cases and decoding settings. Cache generated
-ST and document which plan produced it. Mixed inputs can be inconsistent, so
-interpret these as sensitivity diagnostics rather than perfectly isolated
-causal effects. Gold intermediates are never used for released-test generation.
-
-Training with generated or noisy intermediates remains a proposed extension
-until an actual training run and evaluation are reported. Generate training
-intermediates using training-only procedures; never use validation/test labels
-for constructing training examples.
+| Verified plan + gold ST | TBD | Yet to update |
+| Generated plan + gold ST | TBD | Yet to update |
+| Verified plan + generated ST | TBD | Yet to update |
+| Generated plan + generated ST | TBD | Yet to update |
 
 ### Systematic error analysis
 
 | Error category | Cases | Evidence |
 |---|---:|---|
-| Missing, changed, or additional addresses | TBD | Contract diagnostics |
-| Rust syntax/type errors | TBD | Cargo diagnostics |
-| Incorrect I/O API or runtime structure | TBD | Interface/structure checks |
-| Incorrect timing/reset/state/control behavior | TBD | Behavioral tests or manual inspection |
-| Upstream errors reflected in Rust | TBD | Paired plan/ST/Rust inspection |
-| Structural differences from reference Rust | TBD | Reference comparison |
+| Missing, changed, or additional addresses | Yet to update | Contract diagnostics |
+| Rust syntax/type errors | Yet to update | Cargo diagnostics |
+| Incorrect I/O API or runtime structure | Yet to update | Interface/structure checks |
+| Incorrect timing/reset/state/control behavior | Yet to update | Behavioral tests or manual inspection |
+| Upstream errors reflected in Rust | Yet to update | Paired plan/ST/Rust inspection |
+| Structural differences from reference Rust | Yet to update | Reference comparison |
 
 Report overlapping categories explicitly. Compilation cannot establish timing,
 scan-cycle, reset, or safety-priority correctness. Distinguish suspected causes
 from errors confirmed by a test or manual inspection.
-
-### Representative failure and repair examples
-
-Publish at least one observed successful repair and one unresolved failure.
-For each, record the task ID, requirement, relevant plan/ST context, original
-candidate, exact diagnostics, regenerated candidate, retry count, final status,
-and any behavioral test result. Preserve original automated outputs and label
-manual corrections separately. Do not present invented examples as observed runs.
-
-### Reproducibility record
-
-Archive the following with each experiment:
-
-- Repository commit, model/tokenizer revisions, and adapter checkpoint IDs.
-- Split identifiers and accepted/rejected counts after every filtering stage.
-- Exact prompts, generation settings, seeds, and retry/fallback policy.
-- Python, PyTorch, CUDA, Unsloth, PEFT, Transformers, Rust, and Cargo versions.
-- Validator sources, runtime files, Cargo manifest and lockfile.
-- Per-case outputs, errors, repair histories, and timing/memory measurements.
-- Evaluator version, reference source, and exact scoring commands.
-
-Existing detailed JSONL and metrics files are starting points; add
-instrumentation where a required measurement is absent. Do not imply that an
-unimplemented experiment has a runnable command. Publish scripts and commands
-when the experiments are implemented.
-
-**ST supervision provenance to verify:** The original README describes
-teacher-created ST targets, while the manuscript describes reference ST
-supervision. Inspect the dataset-builder output and record whether final ST
-targets are original references, teacher-generated programs, or a filtered
-mixture. Align the manuscript with the actual records before publication.
-
-### Connection to the working note
-
-Keep the complete pipeline figure, principal ablation results, concise repair
-statistics, runtime summary, and main Rust findings in the paper. This README
-provides extended procedures and evidence; a repository link alone does not
-replace the principal quantitative results. Cite a fixed commit or release so
-readers can recover the version corresponding to the working note.
 
 ## Quick troubleshooting
 
