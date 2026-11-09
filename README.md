@@ -809,8 +809,8 @@ retry settings are recorded in the preceding repair-configuration table.
 
 | Measurement | Planner | ST | Rust |
 |---|---:|---:|---:|
-| Trainable adapter parameters | TBD | TBD | TBD |
-| Trainable parameters / base parameters, % | TBD | TBD | TBD |
+| Trainable adapter parameters | 40,370,176 | 80,740,352 | 80,740,352 |
+| Trainable parameters / base parameters, % | 0.5301% | 1.0602% | 1.0602% |
 | Mean initial-generation seconds/task | TBD | TBD | TBD |
 | Mean validation seconds/task | TBD | TBD | TBD |
 | Mean additional repair seconds/task | TBD | TBD | TBD |
