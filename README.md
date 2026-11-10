@@ -811,10 +811,10 @@ retry settings are recorded in the preceding repair-configuration table.
 |---|---:|---:|---:|
 | Trainable adapter parameters | 40,370,176 | 80,740,352 | 80,740,352 |
 | Trainable parameters / base parameters, % | 0.5301% | 1.0602% | 1.0602% |
-| Mean initial-generation seconds/task | TBD | TBD | TBD |
-| Mean validation seconds/task | TBD | TBD | TBD |
-| Mean additional repair seconds/task | TBD | TBD | TBD |
-| Peak GPU memory, GB | TBD | TBD | TBD |
+| Mean initial-generation seconds/task | Yet to update | Yet to update | Yet to update |
+| Mean validation seconds/task | Yet to update | Yet to update | Yet to update |
+| Mean additional repair seconds/task | Yet to update | Yet to update | Yet to update |
+| Peak GPU memory, GB | 3-4GB | 5-6GB | 3-4GB |
 | Mean GPU utilization, % | TBD | TBD | TBD |
 
 ### Rust intermediate-output diagnostic
@@ -828,10 +828,10 @@ gap until supported by controlled measurements.
 
 | Inputs to the same Rust checkpoint | Rust score | Validator pass rate |
 |---|---:|---:|
-| Verified plan + gold ST | TBD | Yet to update |
-| Generated plan + gold ST | TBD | Yet to update |
-| Verified plan + generated ST | TBD | Yet to update |
-| Generated plan + generated ST | TBD | Yet to update |
+| Verified plan + gold ST | 62.63 | Yet to update |
+| Generated plan + gold ST | 58.34 | Yet to update |
+| Verified plan + generated ST | 56.78 | Yet to update |
+| Generated plan + generated ST | 44.20 | Yet to update |
 
 ### Systematic error analysis
 
