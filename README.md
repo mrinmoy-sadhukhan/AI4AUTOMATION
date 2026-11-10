@@ -702,9 +702,9 @@ functional correctness. Keep official results separate from internal experiments
 
 | Configuration | ST score | Rust score | ST validator pass rate | Rust validator pass rate | Mean seconds/task |
 |---|---:|---:|---:|---:|---:|
-| Direct task-to-code generation | TBD | TBD | Yet to update | Yet to update | Yet to update |
-| Cascade without repair | TBD | TBD | Yet to update | Yet to update | Yet to update |
-| Full cascade with validator-guided repair | TBD | TBD | Yet to update | Yet to update | Yet to update |
+| Direct task-to-code generation | 56.47 | 29.50 | Yet to update | Yet to update | Yet to update |
+| Cascade without repair | 67.92 | 36.73 | Yet to update | Yet to update | Yet to update |
+| Full cascade with validator-guided repair | 79.31 | 44.20 | Yet to update | Yet to update | Yet to update |
 
 Used the same examples, base model, scoring implementation, and comparable
 training/decoding settings. 
